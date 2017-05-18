@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <title>US GDP by quarter, over time</title>
+
+    <style>
+        body {
+            margin: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <svg>
+
+    </svg>
+    <script>
+        fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/GDP-data.json')
+            .then(response => response.json())
+            .then(response => {
+                const rectWid = 2;
+                const height = 1000;
+                
+                const svg = d3.select('svg');
+                svg.selectAll('rect')
+                    .data(response.data)
+                    .enter().append('rect')
+                    .attr('x', (d, i) => i * rectWid)
+                    .attr('y', d => height - d[1])
+                    .attr('width', rectWid)
+                    .attr('height', d => d[1])
+                    .attr('fill', 'blue')
+                    .attr('stroke', '#fff');
+            });
+    </script>
+</body>
+</html>
