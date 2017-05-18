@@ -30,17 +30,22 @@
         fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/GDP-data.json')
             .then(response => response.json())
             .then(response => {
-                const rectWid = 2;
-                const height = 1000;
+                const rectWid = 4;
+                const height = 500;
+                const yMax = d3.max(response.data, array => array[1]);
+                const yMin = d3.min(response.data, array => array[1]);
+                const yScale = d3.scaleLinear()
+                    .domain([0, yMax])
+                    .range([0, height]);
                 
                 const svg = d3.select('svg');
                 svg.selectAll('rect')
                     .data(response.data)
                     .enter().append('rect')
                     .attr('x', (d, i) => i * rectWid)
-                    .attr('y', d => height - d[1])
+                    .attr('y', d => height - yScale(d[1]))
                     .attr('width', rectWid)
-                    .attr('height', d => d[1])
+                    .attr('height', d => yScale(d[1]))
                     .attr('fill', 'blue')
                     .attr('stroke', '#fff');
             });
