@@ -30,24 +30,46 @@
         fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/GDP-data.json')
             .then(response => response.json())
             .then(response => {
-                const rectWid = 4;
+                const rectWid = 3;
                 const height = 500;
+                const width = 800;
                 const yMax = d3.max(response.data, array => array[1]);
                 const yMin = d3.min(response.data, array => array[1]);
+
                 const yScale = d3.scaleLinear()
                     .domain([0, yMax])
-                    .range([0, height]);
+                    .range([height - 20, 20]);
+
+                const yAxis = d3.axisLeft()
+                    .scale(yScale);
+
+                const xExtent = d3.extent(response.data, d => d[0]);
+                const xScale = d3.scaleTime()
+                    .domain(xExtent)
+                    .range([20, 800 - 20]);
+                
+                const xAxis = d3.axisBottom()
+                    .scale(xScale)
+                    .tickFormat(d3.timeFormat('%b, %Y'));
                 
                 const svg = d3.select('svg');
                 svg.selectAll('rect')
                     .data(response.data)
                     .enter().append('rect')
                     .attr('x', (d, i) => i * rectWid)
-                    .attr('y', d => height - yScale(d[1]))
+                    .attr('y', d => yScale(d[1]))
                     .attr('width', rectWid)
-                    .attr('height', d => yScale(d[1]))
+                    .attr('height', d => height - yScale(d[1]))
                     .attr('fill', 'blue')
                     .attr('stroke', '#fff');
+
+                svg.append('g')
+                    .attr('transform', 'translate(40, 20)')
+                    .call(yAxis);
+
+                svg.append('g')
+                    .attr('transform', `translate(20, 500)`)
+                    .call(xAxis);
             });
     </script>
 </body>
