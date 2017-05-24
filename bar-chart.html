@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
+    <link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css">
     <title>US GDP by quarter, over time</title>
 
     <style>
@@ -43,32 +45,51 @@
                 const yAxis = d3.axisLeft()
                     .scale(yScale);
 
-                const xExtent = d3.extent(response.data, d => d[0]);
+                const parseTime = d3.timeParse('%Y-%m-%d');
+
+                const xExtent = d3.extent(response.data, d => parseTime(d[0]));
                 const xScale = d3.scaleTime()
                     .domain(xExtent)
-                    .range([20, 800 - 20]);
+                    .range([40, 800 - 20]);
                 
                 const xAxis = d3.axisBottom()
                     .scale(xScale)
-                    .tickFormat(d3.timeFormat('%b, %Y'));
+                    .tickFormat(d3.timeFormat('%Y'));
+
+                const toolTipTime = d3.timeFormat('%Y %B')
                 
+                const toolTip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(d => {
+                        return `$ ${d[1]} Billion
+                        <br />
+                        ${toolTipTime(parseTime(d[0]))}`;
+                    });
+
+                
+
                 const svg = d3.select('svg');
+
+                svg.call(toolTip);
+
                 svg.selectAll('rect')
                     .data(response.data)
                     .enter().append('rect')
-                    .attr('x', (d, i) => i * rectWid)
+                    .attr('x', d => xScale(parseTime(d[0])))
                     .attr('y', d => yScale(d[1]))
                     .attr('width', rectWid)
                     .attr('height', d => height - yScale(d[1]))
                     .attr('fill', 'blue')
-                    .attr('stroke', '#fff');
+                    .attr('stroke', '#fff')
+                    .on('mouseover', toolTip.show)
+                    .on('mouseout', toolTip.hide);
 
                 svg.append('g')
                     .attr('transform', 'translate(40, 20)')
                     .call(yAxis);
 
                 svg.append('g')
-                    .attr('transform', `translate(20, 500)`)
+                    .attr('transform', `translate(0, 500)`)
                     .call(xAxis);
             });
     </script>
