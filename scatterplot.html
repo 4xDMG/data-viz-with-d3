@@ -58,10 +58,7 @@
                 svg.selectAll('circle')
                     .data(data)
                     .enter().append('circle')
-                    .attr('cx', d => {
-                        console.log((d.Seconds - fastestTime) * 1000);
-                        console.log(new Date((d.Seconds - fastestTime) * 1000));
-                        return xScale(new Date((d.Seconds - fastestTime) * 1000))})
+                    .attr('cx', d => xScale(new Date((d.Seconds - fastestTime) * 1000)))
                     .attr('cy', d => yScale(d.Place))
                     .attr('r', radius)
                     .attr('fill', d => d.Doping === "" ? 'blue':'red')
