@@ -34,15 +34,39 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                const fastestTime = d3.min(data, data => data.Time);
-                const slowestTime = d3.max(data, data => data.Time);
-                const parseTime = d3.timeParse('%M:%S');
+                const radius = 5;
+                const height = 500;
+                const width = 800;
+                const margin = { top: 20, bottom: 20, left: 20, right: 20 };
+
+                const fastestTime = d3.min(data, data => data.Seconds);
+                const slowestTime = d3.max(data, data => data.Seconds);
                 const formatTime = d3.timeFormat('%M:%S');
-                console.log(parseTime(fastestTime));
-                console.log(parseTime(slowestTime));
-                const timeDiff = Math.abs(slowestTime - fastestTime);
-                console.log(timeDiff);
-                console.log(formatTime(timeDiff));
+                const parseTime = d3.timeParse('%L')
+                const timeDiff = new Date((slowestTime - fastestTime) * 1000);
+
+                const xScale = d3.scaleTime()
+                    .domain([margin.left, width - margin.right])
+                    .range([timeDiff, new Date(0)]);
+
+                const yExtent = d3.extent(data, d => d.Place).reverse();
+                const yScale = d3.scaleLinear()
+                    .range([height - margin.bottom, margin.top])
+                    .domain(yExtent);
+
+                const svg = d3.select('svg');
+
+                console.log(xScale(100));
+
+                svg.selectAll('circle')
+                    .data(data)
+                    .enter().append('circle')
+                    .attr('cx', d => {
+                        console.log((d.Seconds - fastestTime));
+                        return xScale(parseTime((d.Seconds - fastestTime) * 1000))})
+                    .attr('cy', d => yScale(d.Place))
+                    .attr('r', radius)
+
             })
     </script>
 </body>
