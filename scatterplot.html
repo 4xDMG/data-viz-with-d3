@@ -42,30 +42,29 @@
                 const fastestTime = d3.min(data, data => data.Seconds);
                 const slowestTime = d3.max(data, data => data.Seconds);
                 const formatTime = d3.timeFormat('%M:%S');
-                const parseTime = d3.timeParse('%L')
                 const timeDiff = new Date((slowestTime - fastestTime) * 1000);
 
                 const xScale = d3.scaleTime()
-                    .domain([margin.left, width - margin.right])
-                    .range([timeDiff, new Date(0)]);
+                    .domain([timeDiff, new Date(0)])
+                    .range([margin.left, width - margin.right]);
 
                 const yExtent = d3.extent(data, d => d.Place).reverse();
                 const yScale = d3.scaleLinear()
-                    .range([height - margin.bottom, margin.top])
-                    .domain(yExtent);
+                    .domain(yExtent)
+                    .range([height - margin.bottom, margin.top]);
 
                 const svg = d3.select('svg');
-
-                console.log(xScale(100));
 
                 svg.selectAll('circle')
                     .data(data)
                     .enter().append('circle')
                     .attr('cx', d => {
-                        console.log((d.Seconds - fastestTime));
-                        return xScale(parseTime((d.Seconds - fastestTime) * 1000))})
+                        console.log((d.Seconds - fastestTime) * 1000);
+                        console.log(new Date((d.Seconds - fastestTime) * 1000));
+                        return xScale(new Date((d.Seconds - fastestTime) * 1000))})
                     .attr('cy', d => yScale(d.Place))
                     .attr('r', radius)
+                    .attr('fill', d => d.Doping === "" ? 'blue':'red')
 
             })
     </script>
