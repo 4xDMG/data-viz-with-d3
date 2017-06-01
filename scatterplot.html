@@ -59,9 +59,24 @@
                     .data(data)
                     .enter().append('circle')
                     .attr('cx', d => xScale(new Date((d.Seconds - fastestTime) * 1000)))
-                    .attr('cy', d => yScale(d.Place))
+                    .attr('cy', d => yScale(d.Place) + margin.top)
                     .attr('r', radius)
-                    .attr('fill', d => d.Doping === "" ? 'blue':'red')
+                    .attr('fill', d => d.Doping === "" ? 'blue':'red');
+
+                const xAxis = d3.axisBottom()
+                    .scale(xScale)
+                    .tickFormat(formatTime);
+
+                const yAxis = d3.axisLeft()
+                    .scale(yScale);
+
+                svg.append('g')
+                    .attr('transform', `translate(0, ${height})`)
+                    .call(xAxis);
+
+                svg.append('g')
+                    .attr('transform', `translate(${margin.left}, ${margin.top})`)
+                    .call(yAxis);
 
             })
     </script>
