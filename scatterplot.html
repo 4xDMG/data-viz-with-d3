@@ -23,6 +23,9 @@
             width: 100%;
             height: 100%;
         }
+        .d3-tip {
+            max-width: 300px;
+        }
     </style>
 </head>
 <body>
@@ -37,7 +40,7 @@
                 const radius = 5;
                 const height = 500;
                 const width = 800;
-                const margin = { top: 20, bottom: 20, left: 20, right: 20 };
+                const margin = { top: 40, bottom: 40, left: 40, right: 20 };
 
                 const fastestTime = d3.min(data, data => data.Seconds);
                 const slowestTime = d3.max(data, data => data.Seconds);
@@ -53,7 +56,21 @@
                     .domain(yExtent)
                     .range([height - margin.bottom, margin.top]);
 
+                 const toolTip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html(d => {
+                        const tip = `${d.Name} : ${d.Nationality}
+                        <br />
+                        Year: ${d.Year}, Time: ${d.Time}
+                        <br />
+                        ${d.Doping}`;
+                        return tip;
+                    });
+
+
                 const svg = d3.select('svg');
+
+                svg.call(toolTip);
 
                 svg.selectAll('circle')
                     .data(data)
@@ -61,7 +78,9 @@
                     .attr('cx', d => xScale(new Date((d.Seconds - fastestTime) * 1000)))
                     .attr('cy', d => yScale(d.Place) + margin.top)
                     .attr('r', radius)
-                    .attr('fill', d => d.Doping === "" ? 'blue':'red');
+                    .attr('fill', d => d.Doping === "" ? 'blue':'red')
+                    .on('mouseover', toolTip.show)
+                    .on('mouseout', toolTip.hide);
 
                 const xAxis = d3.axisBottom()
                     .scale(xScale)
