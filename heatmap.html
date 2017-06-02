@@ -34,7 +34,33 @@
         fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                const width = 1000;
+                const height = 600;
+                const rectHeight = height/12;
+                const margin = { top: 20, bottom: 20, left: 20, right: 20 };
+
+                const baseTemp = data.baseTemperature;
+                const parseTime = d3.timeParse('%Y %m');
+                const varianceExtent = d3.extent(data.monthlyVariance, d => d.variance);
+                const yearExtent = d3.extent(data.monthlyVariance, d => parseTime(`${d.year} ${d.month + 1}`));
+                
+                console.log(baseTemp);
+
+                const xScale = d3.scaleTime()
+                    .domain(yearExtent)
+                    .range([margin.left, width - margin.left - margin.right]);
+
+                const svg = d3.select('svg');
+
+                svg.selectAll('rect')
+                    .data(data.monthlyVariance)
+                    .enter().append('rect')
+                    .attr('x', d => xScale(parseTime(`${d.year} ${d.month + 1}`)))
+                    .attr('y', (d, i) => rectHeight * i + margin.top)
+                    .attr('height', rectHeight)
+                    .attr('width', 3)
+                    .attr('fill', d => d.variance > 0 ? 'red':'blue')
+
             })
     </script>
 </body>
