@@ -40,11 +40,11 @@
                 const margin = { top: 20, bottom: 20, left: 20, right: 20 };
 
                 const baseTemp = data.baseTemperature;
-                const parseTime = d3.timeParse('%Y %m');
+                const parseTime = d3.timeParse('%Y');
                 const varianceExtent = d3.extent(data.monthlyVariance, d => d.variance);
-                const yearExtent = d3.extent(data.monthlyVariance, d => parseTime(`${d.year} ${d.month + 1}`));
+                const yearExtent = d3.extent(data.monthlyVariance, d => parseTime(`${d.year + 1}`));
                 
-                console.log(baseTemp);
+                console.log(yearExtent);
 
                 const xScale = d3.scaleTime()
                     .domain(yearExtent)
@@ -55,8 +55,8 @@
                 svg.selectAll('rect')
                     .data(data.monthlyVariance)
                     .enter().append('rect')
-                    .attr('x', d => xScale(parseTime(`${d.year} ${d.month + 1}`)))
-                    .attr('y', (d, i) => rectHeight * i + margin.top)
+                    .attr('x', d => xScale(parseTime(`${d.year}`)))
+                    .attr('y', (d, i) => i % 12 * rectHeight + margin.top)
                     .attr('height', rectHeight)
                     .attr('width', 3)
                     .attr('fill', d => d.variance > 0 ? 'red':'blue')
