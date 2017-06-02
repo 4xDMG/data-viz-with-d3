@@ -34,21 +34,23 @@
         fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json')
             .then(response => response.json())
             .then(data => {
-                const width = 1000;
-                const height = 600;
-                const rectHeight = height/12;
-                const margin = { top: 20, bottom: 20, left: 20, right: 20 };
+                const width = 1200;
+                const height = 640;
+                const margin = { top: 20, bottom: 20, left: 100, right: 20 };
+                const rectHeight = (height - margin.top - margin.bottom) /12;
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
                 const baseTemp = data.baseTemperature;
                 const parseTime = d3.timeParse('%Y');
                 const varianceExtent = d3.extent(data.monthlyVariance, d => d.variance);
-                const yearExtent = d3.extent(data.monthlyVariance, d => parseTime(`${d.year + 1}`));
-                
-                console.log(yearExtent);
+                const yearExtent = d3.extent(data.monthlyVariance, d => parseTime(`${d.year}`));
 
                 const xScale = d3.scaleTime()
                     .domain(yearExtent)
                     .range([margin.left, width - margin.left - margin.right]);
+
+                const xAxis = d3.axisBottom()
+                    .scale(xScale);
 
                 const svg = d3.select('svg');
 
@@ -59,7 +61,25 @@
                     .attr('y', (d, i) => i % 12 * rectHeight + margin.top)
                     .attr('height', rectHeight)
                     .attr('width', 3)
-                    .attr('fill', d => d.variance > 0 ? 'red':'blue')
+                    .attr('fill', d => d.variance > 0 ? 'red':'blue');
+
+                svg.selectAll('text')
+                    .data(months)
+                    .enter().append('text')
+                    .text(d => d)
+                    .attr('x', 20)
+                    .attr('y', (d, i) => {
+                            if (i === 0) {
+                                return
+                            }
+                            return (i % 12 * rectHeight) + margin.top;
+                        })
+                    .attr('font-family', 'Verdana')
+                    .attr('font-size', '14');
+
+                svg.append('g')
+                    .call(xAxis)
+                    .attr('transform', `translate(0, ${height - margin.bottom})`)
 
             })
     </script>
