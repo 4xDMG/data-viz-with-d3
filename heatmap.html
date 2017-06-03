@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css">
 
     <title>Monthly global land surface temperatures</title>
@@ -34,19 +37,24 @@
         fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json')
             .then(response => response.json())
             .then(data => {
-                const width = 1200;
+                const width = 1300;
                 const height = 640;
                 const margin = { top: 20, bottom: 20, left: 100, right: 20 };
                 const rectHeight = (height - margin.top - margin.bottom) /12;
+                const rectWidth = 4;
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
                 const baseTemp = data.baseTemperature;
                 const parseTime = d3.timeParse('%Y');
                 const varianceExtent = d3.extent(data.monthlyVariance, d => d.variance);
-                const yearExtent = d3.extent(data.monthlyVariance, d => parseTime(`${d.year}`));
+                const yearMin = d3.min(data.monthlyVariance, d => parseTime(`${d.year}`));
+                const yearMax = d3.max(data.monthlyVariance, d => parseTime(`${d.year + 1}`));
+
+                const colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
+                    .domain(varianceExtent.reverse());
 
                 const xScale = d3.scaleTime()
-                    .domain(yearExtent)
+                    .domain([yearMin, yearMax])
                     .range([margin.left, width - margin.left - margin.right]);
 
                 const xAxis = d3.axisBottom()
@@ -60,8 +68,8 @@
                     .attr('x', d => xScale(parseTime(`${d.year}`)))
                     .attr('y', (d, i) => i % 12 * rectHeight + margin.top)
                     .attr('height', rectHeight)
-                    .attr('width', 3)
-                    .attr('fill', d => d.variance > 0 ? 'red':'blue');
+                    .attr('width', rectWidth)
+                    .attr('fill', d => colorScale(d.variance));
 
                 svg.selectAll('text')
                     .data(months)
