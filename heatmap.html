@@ -75,15 +75,11 @@
                     .data(months)
                     .enter().append('text')
                     .text(d => d)
-                    .attr('x', 20)
-                    .attr('y', (d, i) => {
-                            if (i === 0) {
-                                return
-                            }
-                            return (i % 12 * rectHeight) + margin.top;
-                        })
+                    .attr('x', margin.left - 5)
+                    .attr('y', (d, i) => (i % 12 * rectHeight) + rectHeight/2 + margin.top + 7)
                     .attr('font-family', 'Verdana')
-                    .attr('font-size', '14');
+                    .attr('font-size', '14')
+                    .attr('text-anchor', 'end');
 
                 svg.append('g')
                     .call(xAxis)
