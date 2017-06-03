@@ -55,7 +55,7 @@
                     .domain(yExtent)
                     .range([height - margin.bottom, margin.top]);
 
-                 const toolTip = d3.tip()
+                const toolTip = d3.tip()
                     .attr('class', 'd3-tip')
                     .html(d => {
                         const tip = `${d.Name} : ${d.Nationality}

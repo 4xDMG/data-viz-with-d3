@@ -37,19 +37,24 @@
         fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json')
             .then(response => response.json())
             .then(data => {
+                // Define dimensions for heat map
                 const width = 1300;
                 const height = 640;
                 const margin = { top: 20, bottom: 20, left: 100, right: 20 };
                 const rectHeight = (height - margin.top - margin.bottom) /12;
                 const rectWidth = 4;
+
+                // month labels for y axis
                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+                // Get data from JSON
                 const baseTemp = data.baseTemperature;
                 const parseTime = d3.timeParse('%Y');
                 const varianceExtent = d3.extent(data.monthlyVariance, d => d.variance);
                 const yearMin = d3.min(data.monthlyVariance, d => parseTime(`${d.year}`));
                 const yearMax = d3.max(data.monthlyVariance, d => parseTime(`${d.year + 1}`));
 
+                // Set up scales and axis
                 const colorScale = d3.scaleSequential(d3.interpolateRdYlBu)
                     .domain(varianceExtent.reverse());
 
@@ -62,6 +67,18 @@
 
                 const svg = d3.select('svg');
 
+                // Define tool tip
+                const toolTip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .html((d, i) => {
+                        return `<h3>${d.year} ${months[i%12]}</h3>
+                            <h4>${(baseTemp + d.variance).toFixed(3)} &deg;C</h4>
+                            <p>${d.variance} &deg;C</p>`;
+                    })
+
+                svg.call(toolTip);
+
+                // Draw the rectangles
                 svg.selectAll('rect')
                     .data(data.monthlyVariance)
                     .enter().append('rect')
@@ -69,18 +86,22 @@
                     .attr('y', (d, i) => i % 12 * rectHeight + margin.top)
                     .attr('height', rectHeight)
                     .attr('width', rectWidth)
-                    .attr('fill', d => colorScale(d.variance));
+                    .attr('fill', d => colorScale(d.variance))
+                    .on('mouseover', toolTip.show)
+                    .on('mouseout', toolTip.hide);
 
+                // Append month labels to y axis
                 svg.selectAll('text')
                     .data(months)
                     .enter().append('text')
                     .text(d => d)
                     .attr('x', margin.left - 5)
-                    .attr('y', (d, i) => (i % 12 * rectHeight) + rectHeight/2 + margin.top + 7)
+                    .attr('y', (d, i) => (i % 12 * rectHeight) + rectHeight/2 + margin.top + 7) // + 7 half of text height
                     .attr('font-family', 'Verdana')
                     .attr('font-size', '14')
                     .attr('text-anchor', 'end');
 
+                // Append x axis
                 svg.append('g')
                     .call(xAxis)
                     .attr('transform', `translate(0, ${height - margin.bottom})`)
