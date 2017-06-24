@@ -1,69 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://d3js.org/topojson.v2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
-    <link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://d3js.org/topojson.v2.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.js"></script>
+	<link rel="stylesheet" href="//rawgithub.com/Caged/d3-tip/master/examples/example-styles.css">
 
-    <title>Meteorite Impacts</title>
+	<title>Meteorite Impacts</title>
 
-    <style>
-        body {
-            margin: 0;
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-        }
-        svg {
+	<style>
+		body {
+			margin: 0;
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+		}
+		svg {
 
-            width: 100%;
-            height: 100%;
-        }
-        .d3-tip {
-            max-width: 300px;
-        }
-        .links line {
-            stroke: #000;
-            stroke-opacity: 0.6;
-        }
-        .nodes circle {
-            stroke: #fff;
-            stroke-width: 1.5px;
-        }
+			width: 100%;
+			height: 100%;
+		}
+		.d3-tip {
+			max-width: 300px;
+		}
+		.links line {
+			stroke: #000;
+			stroke-opacity: 0.6;
+		}
+		.nodes circle {
+			stroke: #fff;
+			stroke-width: 1.5px;
+		}
 
-        .flag {
-            position: absolute;
-        }
-    </style>
+		.flag {
+			position: absolute;
+		}
+	</style>
 </head>
 <body>
-    <svg>
+	<svg>
 
-    </svg>
-    
+	</svg>
+	
 
-    <script>
-        fetch('https://d3js.org/world-50m.v1.json')
-            .then(response => response.json())
-            .then(data => {
-                const svg = d3.select('svg');
+	<script>
+		const width = 1800;
+		const height = 800;
+		const projection = d3.geoMercator().translate([width / 2, height / 2]);
 
+		fetch('https://d3js.org/world-50m.v1.json')
+			.then(response => response.json())
+			.then(data => {
+				const svg = d3.select('svg');
 
-            })
+				console.log(data);
 
-        fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/meteorite-strike-data.json')
-            .then(response => response.json())
-            .then(data => {
-                const height = 800;
-                const width = 1000;
+				const geoPath = d3.geoPath().projection(projection);
+				const world = topojson.feature(data, data.objects.countries).features;
 
-            });
-    </script>
+				svg.append('g')
+					.selectAll('path')
+					.data(world)
+					.enter()
+					.append('path')
+					.attr('d', geoPath)
+					.style('opacity', 0.5);
+
+				fetch('https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/meteorite-strike-data.json')
+					.then(response => response.json())
+					.then(data => {
+						console.log(data);
+						// svg.append('g')
+						// 	.selectAll('circle')
+						// 	.data(data)
+					});
+			});
+	</script>
 </body>
 </html>
